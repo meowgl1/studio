@@ -22,4 +22,4 @@ node_modules/ | .venv/ | venv/
 migrations/ (leggere sì, modificare solo con conferma esplicita)
 
 ## Personal files
-.obsidian/ | persona.
+.obsidian/ | .vscode/ | persona.md
