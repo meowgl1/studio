@@ -1,0 +1,90 @@
+{
+  "_comment": "Studio hooks — subset adapted from ECC. Activate by merging into ~/.claude/settings.json hooks section.",
+  "_docs": "Each hook runs a Python script from ~/.studio/scripts/hooks/. Scripts are Python for stack consistency.",
+
+  "PreCompact": [
+    {
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 ~/.studio/scripts/hooks/pre-compact.py",
+          "timeout": 10000,
+          "description": "Save session state before context compaction — prevents losing context on long sessions"
+        }
+      ]
+    }
+  ],
+
+  "SessionStart": [
+    {
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 ~/.studio/scripts/hooks/session-start.py",
+          "timeout": 10000,
+          "description": "Detect active project, load prior session state if available"
+        }
+      ]
+    }
+  ],
+
+  "Stop": [
+    {
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 ~/.studio/scripts/hooks/session-end.py",
+          "timeout": 10000,
+          "run": "always",
+          "description": "Persist session state after each response — tracks files edited, decisions made"
+        },
+        {
+          "type": "command",
+          "command": "python3 ~/.studio/scripts/hooks/cost-tracker.py",
+          "timeout": 10000,
+          "run": "always",
+          "description": "Track token usage and estimated cost per session — written to .studio/changelog/"
+        },
+        {
+          "type": "command",
+          "command": "python3 ~/.studio/scripts/hooks/desktop-notify.py",
+          "timeout": 5000,
+          "run": "always",
+          "description": "macOS notification when Claude finishes a response — useful for long tasks"
+        }
+      ]
+    }
+  ],
+
+  "PostToolUse": [
+    {
+      "matcher": "Edit|Write|MultiEdit",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 ~/.studio/scripts/hooks/quality-gate.py",
+          "timeout": 30000,
+          "run": "always",
+          "description": "Run linting and type checking after file edits — language auto-detected from file extension"
+        }
+      ]
+    }
+  ],
+
+  "PreToolUse": [
+    {
+      "matcher": "Edit|Write|MultiEdit",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 ~/.studio/scripts/hooks/gateguard.py",
+          "timeout": 5000,
+          "description": "Before first edit on a file — verify the file has been read. Prevents blind edits."
+        }
+      ]
+    }
+  ]
+}

@@ -75,6 +75,26 @@ Override: add `Stack override: [item] → [replacement] because [reason]` to pro
 
 ---
 
+## MCP Servers
+
+Catalog of available MCP servers. Enable per-project via `.claude/settings.json` → `mcpServers`.  
+Document which are active in each project's `.studio/mcp.md`.
+
+| Server           | Use when                                        | Stack tie-in              |
+|------------------|-------------------------------------------------|---------------------------|
+| `vercel`         | Any project deployed on Vercel                  | Frontend hosting          |
+| `figma`          | Projects with design ↔ code sync                | Design system work        |
+| `supabase`       | Direct DB/Storage inspection during dev         | Primary DB                |
+| `shopify`        | E-commerce projects                             | Project-specific          |
+| `klaviyo`        | Email marketing flows                           | Project-specific          |
+| `gmail`          | Email automation or inbox workflows             | Project-specific          |
+| `google-drive`   | Document-heavy workflows                        | Project-specific          |
+
+**Default for new projects:** enable `vercel` if deployed on Vercel; enable `figma` if design files exist.  
+All others: opt-in only when the project explicitly uses that service.
+
+---
+
 ## Project-specific design systems
 
 Design tokens, fonts, and color palettes are project-specific.  
