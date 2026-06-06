@@ -37,9 +37,6 @@ def build_claude_hooks() -> dict:
     # Strip comment keys
     hooks = {k: v for k, v in raw.items() if not k.startswith("_")}
 
-    # Add marker so we can identify and remove studio-managed hooks later
-    hooks[STUDIO_HOOKS_MARKER] = True
-
     return hooks
 
 
@@ -66,12 +63,13 @@ def activate(dry_run: bool = False) -> None:
     settings = read_claude_settings()
     hooks = build_claude_hooks()
 
-    if "hooks" in settings and settings["hooks"].get(STUDIO_HOOKS_MARKER):
+    if settings.get(STUDIO_HOOKS_MARKER):
         print("Studio hooks already active in Claude Code.")
         print("Run with --off then re-activate to refresh.")
         return
 
     settings["hooks"] = hooks
+    settings[STUDIO_HOOKS_MARKER] = True
     write_claude_settings(settings, dry_run)
 
     if not dry_run:
@@ -86,12 +84,13 @@ def deactivate(dry_run: bool = False) -> None:
         print("No hooks found in Claude Code settings.")
         return
 
-    if not settings["hooks"].get(STUDIO_HOOKS_MARKER):
+    if not settings.get(STUDIO_HOOKS_MARKER):
         print("Current hooks were not installed by studio — not removing.")
         print("Remove manually if needed.")
         return
 
     del settings["hooks"]
+    settings.pop(STUDIO_HOOKS_MARKER, None)
     write_claude_settings(settings, dry_run)
 
     if not dry_run:
@@ -114,7 +113,7 @@ def status() -> None:
     settings = read_claude_settings()
     hooks = settings.get("hooks", {})
     if hooks:
-        if hooks.get(STUDIO_HOOKS_MARKER):
+        if settings.get(STUDIO_HOOKS_MARKER):
             print(f"Claude:  ✓ Active (studio-managed)")
             _print_hook_summary(hooks)
         else:

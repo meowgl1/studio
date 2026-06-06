@@ -25,12 +25,14 @@ Projects: jungle · baloo · bagheera · analyst · mowgli
 @~/.studio/skills/spec-driven-development/SKILL.md
 @~/.studio/skills/webapp-testing/SKILL.md
 @~/.studio/skills/tracker/SKILL.md
+@~/.studio/skills/multi-agent-patterns/SKILL.md
 
 ## Load — global rules (always active)
 
 @~/.studio/rules/common/clean-code.md
 @~/.studio/rules/common/clean-architecture.md
 @~/.studio/rules/common/security.md
+@~/.studio/rules/common/llm-security.md
 @~/.studio/rules/common/performance.md
 @~/.studio/rules/common/patterns.md
 @~/.studio/rules/common/testing.md

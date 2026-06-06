@@ -72,15 +72,15 @@ def save_session(state: dict) -> None:
     session_file.write_text(json.dumps(state, indent=2))
 
 
-# ─── Token / cost tracking ────────────────────────────────────────────────────
+# ─── Token / context tracking ─────────────────────────────────────────────────
 
-# Approximate pricing for claude-sonnet-4-6 (update as pricing changes)
-COST_PER_1K_INPUT = 0.003
-COST_PER_1K_OUTPUT = 0.015
+# Context window for claude-sonnet-4-6
+CONTEXT_WINDOW = 200_000
 
 
-def estimate_cost(input_tokens: int, output_tokens: int) -> float:
-    return (input_tokens / 1000 * COST_PER_1K_INPUT) + (output_tokens / 1000 * COST_PER_1K_OUTPUT)
+def context_utilization(input_tokens: int) -> float:
+    """Return context window utilization as a percentage (0–100)."""
+    return round((input_tokens / CONTEXT_WINDOW) * 100, 1)
 
 
 # ─── Changelog helpers ────────────────────────────────────────────────────────

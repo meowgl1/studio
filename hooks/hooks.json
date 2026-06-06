@@ -61,6 +61,18 @@
 
   "PostToolUse": [
     {
+      "matcher": "Read",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 ~/.studio/scripts/hooks/read-tracker.py",
+          "timeout": 5000,
+          "run": "always",
+          "description": "Track files read in session state — enables gateguard to allow subsequent edits"
+        }
+      ]
+    },
+    {
       "matcher": "Edit|Write|MultiEdit",
       "hooks": [
         {

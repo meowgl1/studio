@@ -1,10 +1,12 @@
 # .studio
 
-An AI-agnostic context management system for software projects.
+> An AI-agnostic context management system for software projects.
+
+🌍 [English](README.md) · [Italiano](README.it.md) · [Español](README.es.md)
 
 ---
 
-## What it is
+## 🧠 What it is
 
 `.studio` is a structured folder of markdown files that gives any AI coding assistant — Claude Code, Gemini CLI, Cursor, or anything else — a consistent, layered understanding of how you work before it writes a single line of code.
 
@@ -12,7 +14,7 @@ It is not a plugin. It is not a framework. It is a set of files.
 
 ---
 
-## Acknowledgment
+## 🙏 Acknowledgment
 
 The v2.0 expansion of this system was informed by **[ECC](https://github.com/affaan-m/ECC)** by [@affaan-m](https://github.com/affaan-m), winner of the Claude hackathon. ECC demonstrated what a fully operational AI context system looks like at scale — 97 agents, 300+ skills, 20+ hooks, and cross-tool support across 7 AI platforms.
 
@@ -20,7 +22,7 @@ This project took a different direction: instead of a large, CLI-heavy system, `
 
 ---
 
-## How it works
+## ⚙️ How it works
 
 Every AI session in a project begins with a cascade:
 
@@ -45,11 +47,11 @@ The global `~/.studio/` applies to every project on your machine. Each project's
 
 ---
 
-## Structure
+## 🗂️ Structure
 
 ### Global (`~/.studio/`)
 
-#### Standards
+#### 📌 Standards
 
 | File | Purpose |
 |------|---------|
@@ -60,18 +62,18 @@ The global `~/.studio/` applies to every project on your machine. Each project's
 | `IGNORE.md` | Files the AI must never modify: `.env*`, `.git/`, build artifacts, migrations. |
 | `evals.md` | How to know if agents are succeeding. Session logging rules. |
 
-#### Rules (`rules/`)
+#### 📏 Rules (`rules/`)
 
 Enforceable coding standards loaded every session. Organized by scope:
 
 | Folder | Contents |
 |--------|---------|
-| `rules/common/` | `clean-code` · `clean-architecture` · `testing` · `performance` · `patterns` · `security` · `git` · `hooks` |
+| `rules/common/` | `clean-code` · `clean-architecture` · `testing` · `performance` · `patterns` · `security` · `llm-security` · `git` · `hooks` |
 | `rules/python/` | `coding-style` · `patterns` · `testing` · `security` · `fastapi` |
 | `rules/js/` | `coding-style` · `patterns` · `testing` · `security` · `react` |
 | `rules/sql/` | `coding-style` · `patterns` · `security` |
 
-#### Contexts (`contexts/`)
+#### 🎭 Contexts (`contexts/`)
 
 Mode-specific behavior files. Load the one that matches your current activity:
 
@@ -83,7 +85,7 @@ Mode-specific behavior files. Load the one that matches your current activity:
 
 Each context file activates the relevant rules and defines the appropriate behavior for that mode.
 
-#### Skills (`skills/`)
+#### 🛠️ Skills (`skills/`)
 
 Reusable procedures invoked by name during sessions:
 
@@ -101,8 +103,9 @@ Reusable procedures invoked by name during sessions:
 | `eval-harness` | Build evaluation harnesses for AI/LLM features |
 | `tracker` | Session cost and token logging |
 | `caveman` | Minimal, dependency-free scripting patterns |
+| `multi-agent-patterns` | When and how to spawn subagents — handoff templates, parallel rules, anti-patterns |
 
-#### Agents (`agents/`)
+#### 🤖 Agents (`agents/`)
 
 Specialized subagents invoked by name. Each has a defined role and output format:
 
@@ -118,7 +121,7 @@ Specialized subagents invoked by name. Each has a defined role and output format
 | `code-simplifier` | Remove premature abstractions and unnecessary complexity |
 | `doc-updater` | Keep context.md, gotchas.md, and README in sync with code |
 
-#### Hooks (`hooks/`, `scripts/`)
+#### 🪝 Hooks (`hooks/`, `scripts/`)
 
 Automation that runs around your AI sessions:
 
@@ -127,14 +130,15 @@ Automation that runs around your AI sessions:
 | `session-start` | Session opens | Detects active project, loads prior state |
 | `pre-compact` | Before context compaction | Saves session state — nothing lost |
 | `session-end` | After each response | Persists edited files and session data |
-| `cost-tracker` | After each response | Tracks token usage and estimated cost |
+| `cost-tracker` | After each response | Tracks token usage and context window utilization |
 | `desktop-notify` | After each response | macOS notification when Claude finishes |
+| `read-tracker` | After Read | Records every file read — gateguard uses this to allow subsequent edits |
 | `quality-gate` | After Edit/Write | Runs ruff or tsc on the file just edited |
 | `gateguard` | Before Edit/Write | Blocks blind edits — forces Read first |
 
 All hooks are defined in `hooks/hooks.json` (studio source of truth) and applied to AI tools via the activation script — never by editing tool configs manually.
 
-#### Dashboard (`scripts/dashboard.py`)
+#### 📊 Dashboard (`scripts/dashboard.py`)
 
 Terminal overview of your studio and active project:
 
@@ -154,19 +158,19 @@ Terminal overview of your studio and active project:
 
 | File / Folder | Purpose | Required |
 |---------------|---------|---------|
-| `STUDIO.md` | Opens with `@~/.studio/STUDIO.md`. Adds project overrides. | Yes |
-| `context.md` | Architecture, constraints, active feature status. Not documentation — what the AI needs to act correctly. | Yes |
-| `tasks.md` | Current sprint: Doing / Next / Blocked. Updated every session. | Yes |
-| `changelog/` | One file per session (`YYYY-MM-DD.md`). What was done, files changed, token cost. 3 most recent loaded at start. | Yes |
-| `gotchas.md` | Known traps in this codebase. Read before executing. | As needed |
-| `memory/` | Facts that persist across sessions. | As needed |
-| `agents/` | Project-specific agent overrides. | As needed |
-| `skills/` | Project-specific skill overrides. | As needed |
-| `mcp.md` | MCP servers active for this project. | As needed |
+| `STUDIO.md` | Opens with `@~/.studio/STUDIO.md`. Adds project overrides. | ✅ Yes |
+| `context.md` | Architecture, constraints, active feature status. Not documentation — what the AI needs to act correctly. | ✅ Yes |
+| `tasks.md` | Current sprint: Doing / Next / Blocked. Updated every session. | ✅ Yes |
+| `changelog/` | One file per session (`YYYY-MM-DD.md`). What was done, files changed, token cost. 3 most recent loaded at start. | ✅ Yes |
+| `gotchas.md` | Known traps in this codebase. Read before executing. | 🔶 As needed |
+| `memory/` | Facts that persist across sessions. | 🔶 As needed |
+| `agents/` | Project-specific agent overrides. | 🔶 As needed |
+| `skills/` | Project-specific skill overrides. | 🔶 As needed |
+| `mcp.md` | MCP servers active for this project. | 🔶 As needed |
 
 ---
 
-## Why AI-agnostic
+## 🌐 Why AI-agnostic
 
 Claude Code reads `CLAUDE.md`. Gemini CLI reads `GEMINI.md`. Cursor reads `.cursorrules`. Each tool has its own entry file.
 
@@ -183,7 +187,7 @@ The hooks and dashboard are currently adapted for Claude Code. The architecture 
 
 ---
 
-## Token cost
+## 💰 Token cost
 
 Loading the full global context at session start costs approximately **8,000–10,000 tokens** — around 4–5% of a 200K context window.
 
@@ -195,36 +199,36 @@ The design keeps this low by:
 
 ---
 
-## The session protocol
+## 🔄 The session protocol
 
 Every session follows three phases:
 
-**START** — Load `tasks.md` + 3 most recent `changelog/` files. Load context mode (dev / research / review). Know scope before touching anything.
+**▶ START** — Load `tasks.md` + 3 most recent `changelog/` files. Load context mode (dev / research / review). Know scope before touching anything.
 
-**DURING** — Spec-first: no new feature without an approved spec. IGNORE.md: no exceptions. Stack: follow decisions, don't explore alternatives. Rules: enforced by context mode.
+**⚡ DURING** — Spec-first: no new feature without an approved spec. IGNORE.md: no exceptions. Stack: follow decisions, don't explore alternatives. Rules: enforced by context mode.
 
-**END** — Summary, files changed, token cost. Changelog entry written. Tasks updated.
+**⏹ END** — Summary, files changed, token cost. Changelog entry written. Tasks updated.
 
 ---
 
-## Harness Engineering
+## 🏗️ Harness Engineering
 
 The five rules in `harness.md` encode what separates production AI systems from demos:
 
-1. **Schema-first** — LLM output validated with Pydantic or Zod before any operation.
-2. **Evals-driven** — No prompt ships without running against a golden dataset.
-3. **Context engineering** — Raw unprocessed content never reaches the LLM. Filter first.
-4. **Failure-aware design** — Exception chaining, retry with backoff, partial result recovery.
-5. **Observability** — Every LLM call logged: model, tokens, latency, cost.
+1. **🔷 Schema-first** — LLM output validated with Pydantic or Zod before any operation.
+2. **🔷 Evals-driven** — No prompt ships without running against a golden dataset.
+3. **🔷 Context engineering** — Raw unprocessed content never reaches the LLM. Filter first.
+4. **🔷 Failure-aware design** — Exception chaining, retry with backoff, partial result recovery.
+5. **🔷 Observability** — Every LLM call logged: model, tokens, latency, cost.
 
 ---
 
-## Setup
+## 🚀 Setup
 
 ### 1. Install global studio
 
 ```bash
-git clone https://github.com/me-mowgli/studio ~/.studio
+git clone https://github.com/meowgl1/studio ~/.studio
 pip install rich   # for the dashboard
 ```
 
@@ -282,7 +286,7 @@ python3 ~/.studio/scripts/dashboard.py /path/to/project
 
 ---
 
-## Personal opinion
+## 💬 Personal opinion
 
 I built this because I kept losing context.
 
@@ -298,6 +302,6 @@ This is a living system. I add a gotcha when I hit a recurring bug. I add a memo
 
 ---
 
-## License
+## 📜 License
 
 MIT. Use it, adapt it, break it into pieces and take what's useful.
