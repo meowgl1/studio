@@ -4,6 +4,11 @@
 
 🌍 [English](README.md) · [Italiano](README.it.md) · [Español](README.es.md)
 
+![License](https://img.shields.io/github/license/meowgl1/studio)
+![Last Commit](https://img.shields.io/github/last-commit/meowgl1/studio)
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
+![Markdown](https://img.shields.io/badge/Markdown-000000?logo=markdown&logoColor=white)
+
 ---
 
 ## 🧠 What it is
@@ -11,14 +16,6 @@
 `.studio` is a structured folder of markdown files that gives any AI coding assistant — Claude Code, Gemini CLI, Cursor, or anything else — a consistent, layered understanding of how you work before it writes a single line of code.
 
 It is not a plugin. It is not a framework. It is a set of files.
-
----
-
-## 🙏 Acknowledgment
-
-The v2.0 expansion of this system was informed by **[ECC](https://github.com/affaan-m/ECC)** by [@affaan-m](https://github.com/affaan-m), winner of the Claude hackathon. ECC demonstrated what a fully operational AI context system looks like at scale — 97 agents, 300+ skills, 20+ hooks, and cross-tool support across 7 AI platforms.
-
-This project took a different direction: instead of a large, CLI-heavy system, `.studio` adapts ECC's most valuable patterns into a lean, Python-native, AI-agnostic layer. The rules architecture, context modes, hook infrastructure, and agent design were all shaped by studying ECC's approach.
 
 ---
 
@@ -104,6 +101,7 @@ Reusable procedures invoked by name during sessions:
 | `tracker` | Session cost and token logging |
 | `caveman` | Minimal, dependency-free scripting patterns |
 | `multi-agent-patterns` | When and how to spawn subagents — handoff templates, parallel rules, anti-patterns |
+| `readme-craft` | Create, edit, audit, or improve README files — structure, badges, visuals, tone, multi-language |
 
 #### 🤖 Agents (`agents/`)
 
@@ -283,6 +281,14 @@ python3 ~/.studio/scripts/dashboard.py
 # Or from anywhere
 python3 ~/.studio/scripts/dashboard.py /path/to/project
 ```
+
+---
+
+## 🙏 Acknowledgment
+
+The v2.0 expansion of this system was informed by **[ECC](https://github.com/affaan-m/ECC)** by [@affaan-m](https://github.com/affaan-m), winner of the Claude hackathon. ECC demonstrated what a fully operational AI context system looks like at scale — 97 agents, 300+ skills, 20+ hooks, and cross-tool support across 7 AI platforms.
+
+This project took a different direction: instead of a large, CLI-heavy system, `.studio` adapts ECC's most valuable patterns into a lean, Python-native, AI-agnostic layer. The rules architecture, context modes, hook infrastructure, and agent design were all shaped by studying ECC's approach.
 
 ---
 
