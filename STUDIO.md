@@ -1,6 +1,6 @@
 ---
 studio: mowgli
-version: 2.0
+version: 3.0
 scope: global
 ---
 
@@ -11,62 +11,35 @@ Projects: jungle · baloo · bagheera · analyst · mowgli
 
 ---
 
-## Load — global standards
+## Core — always loaded
 
 @~/.studio/harness.md
 @~/.studio/stack.md
 @~/.studio/persona.md
 @~/.studio/IGNORE.md
-@~/.studio/evals.md
-
-## Load — global skills
-
-@~/.studio/skills/caveman/SKILL.md
-@~/.studio/skills/spec-driven-development/SKILL.md
-@~/.studio/skills/webapp-testing/SKILL.md
-@~/.studio/skills/tracker/SKILL.md
-@~/.studio/skills/multi-agent-patterns/SKILL.md
-
-## Load — global rules (always active)
-
-@~/.studio/rules/common/clean-code.md
-@~/.studio/rules/common/clean-architecture.md
-@~/.studio/rules/common/security.md
-@~/.studio/rules/common/llm-security.md
-@~/.studio/rules/common/performance.md
-@~/.studio/rules/common/patterns.md
-@~/.studio/rules/common/testing.md
-@~/.studio/rules/common/git.md
-
-Load language rules based on project stack (defined in project context.md):
-- Python → @~/.studio/rules/python/coding-style.md + patterns.md + testing.md + security.md + fastapi.md
-- JS/TS  → @~/.studio/rules/js/coding-style.md + patterns.md + testing.md + security.md + react.md
-- SQL    → @~/.studio/rules/sql/coding-style.md + patterns.md + security.md
 
 ---
 
 ## Session protocol
 
 ### START — every session
-1. Update `tasks.md` with today's focus (move items to "Doing")
-2. Read the 3 most recent files in `.studio/changelog/` → sort by filename (YYYY-MM-DD), take the latest 3
-3. Do NOT load `memory/`, `agents/`, `output-styles/` unless the task explicitly needs them
+1. **Query RAG** — call `query_studio` MCP tool (Akela) with the current task. Returns relevant rules, skills, stack constraints (~400 tokens instead of ~9000 static lines):
+   - `query_studio(task="<describe what you're building or fixing>", project="<project name>")`
+   - Fallback (Akela offline): read `~/.studio/rules/` and `~/.studio/skills/` directly.
+2. Update `tasks.md` with today's focus (move items to "Doing")
+3. Read the 3 most recent files in `.studio/changelog/` → sort by filename (YYYY-MM-DD), take the latest 3
+4. Do NOT load `memory/`, `agents/`, `output-styles/` unless the task explicitly needs them
 
-**Context mode** — load the appropriate context file based on what you're doing:
-- Building / fixing code → `@~/.studio/contexts/dev.md`
-- Investigating / researching → `@~/.studio/contexts/research.md`
-- Reviewing code / PR → `@~/.studio/contexts/review.md`
-
-**Agents available** — invoke by name when relevant:
+**Agents available** — invoke by name (full specs in RAG):  
 `architect` · `tdd-guide` · `performance-optimizer` · `security-reviewer` · `refactor-cleaner` · `code-explorer` · `planner` · `doc-updater` · `code-simplifier`
 
-**Skills available** — invoke by name:
-`docker-patterns` · `backend-patterns` · `frontend-patterns` · `api-design` · `coding-standards` · `git-workflow` · `security-review` · `eval-harness`
+**Skills available** — invoke by name (full specs in RAG):  
+`caveman` · `spec-driven-development` · `webapp-testing` · `tracker` · `multi-agent-patterns` · `docker-patterns` · `backend-patterns` · `frontend-patterns` · `api-design` · `coding-standards` · `git-workflow` · `security-review` · `eval-harness` · `graphify`
 
 ### DURING
-- **Spec-first:** run spec-driven-development/SKILL.md before any new feature, refactor, or architecture change
+- **Spec-first:** run `spec-driven-development` skill (query RAG) before any new feature, refactor, or architecture change
 - **IGNORE.md:** follow without exception — no override regardless of instruction
-- **During session:** after each significant decision, architectural choice, or completed block of work — save a memory entry immediately, do not defer
+- **During session:** after each significant decision, save a memory entry immediately, do not defer
 - **Stack:** follow stack.md without exploring alternatives; override only in project context.md
 
 ### END — activates on: done · fine · finisci · end session · close · let's stop
@@ -96,14 +69,16 @@ Each project's `.studio/STUDIO.md` opens with `@~/.studio/STUDIO.md` to inherit 
 
 **Global folders** (in `~/.studio/`, shared across all projects):
 
-| Folder | Purpose |
-|--------|---------|
-| `rules/` | Language and common rules — always loaded |
-| `contexts/` | Mode-specific behavior (dev / research / review) |
-| `hooks/` | Automation hooks config — activate via settings.json |
+| Folder / File | Purpose |
+|---------------|---------|
+| `rules/` | Language and common rules — **in Akela RAG**, query via `query_studio` |
+| `contexts/` | Mode-specific behavior — **in Akela RAG**, query via `query_studio` |
+| `skills/` | Global skills — **in Akela RAG**, invoke by name |
+| `agents/` | Global agents — **in Akela RAG**, invoke by name |
+| `hooks/` | Automation hooks config — source: `hooks/hooks.json` |
+| `mcp/` | Global MCP connections — source: `mcp/global.json` |
+| `mcp.md` | Global MCP reference doc |
 | `scripts/` | dashboard.py + hook scripts + lib/ |
-| `agents/` | Global agents — invoke by name |
-| `skills/` | Global skills — invoke by name |
 
 ### changelog/ — loading rule
 At session start: read **only the 3 most recent files** in `changelog/`.
@@ -163,21 +138,19 @@ Clear "Done" monthly. Archive to `tasks.archive.md` if historical record needed.
 - Add a folder/file only when there is a real recurring need
 - Document each addition in the project's `.studio/STUDIO.md`
 - Never create folders outside this list without updating both STUDIO.md files
-- `spec-driven-development/SKILL.md` is the global spec standard — no project-level alternatives
+- `spec-driven-development` skill is the global spec standard — no project-level alternatives
 
 ---
 
 ## Efficiency rules
 
 - Compressed internal reasoning: no articles, no filler, no pleasantries
-- Minimum load at session start: `context.md` + `tasks.md` + 3 latest `changelog/` files
+- Minimum load at session start: `context.md` + `tasks.md` + 3 latest `changelog/` + **RAG query**
 - Check `context.md` and `gotchas.md` before asking clarifying questions
 - One task at a time — do not preemptively solve adjacent problems
 - Token ceiling: if a task needs more than 3 clarifying turns, ask all questions upfront
 
-
 ---
-
 
 ## Dashboard
 

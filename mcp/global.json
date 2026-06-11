@@ -1,0 +1,22 @@
+{
+  "_comment": "Studio MCP — global connections, source of truth. Activate via: python3 ~/.studio/scripts/activate.py",
+  "_docs": "plugins → enabledPlugins. servers defined here. _disabled_servers = toggled off via mowgli mcp off <name>",
+
+  "plugins": {
+    "higgsfield@claude-plugins-official": true
+  },
+
+  "servers": {
+    "obsidian": {
+      "command": "npx",
+      "args": ["@bitbonsai/mcpvault@latest", "/Users/thomas/Documents/Obsidian"]
+    }
+  },
+
+  "_disabled_servers": {
+    "notebooklm": {
+      "command": "npx",
+      "args": ["notebooklm-mcp@latest"]
+    }
+  }
+}
