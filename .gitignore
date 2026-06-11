@@ -1,1 +1,7 @@
-persona.md
+persona.md__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.sessions/
+mowgli/
+circuit_breaker_issues.log

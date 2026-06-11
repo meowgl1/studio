@@ -1,255 +1,305 @@
-# .studio
+# Mowgli Studio
 
-> An AI-agnostic context management system for software projects.
+> A personal AI operating system — context management, unified CLI, and tool ecosystem for software projects.
 
 🌍 [English](README.md) · [Italiano](README.it.md) · [Español](README.es.md)
 
 ![License](https://img.shields.io/github/license/meowgl1/studio)
 ![Last Commit](https://img.shields.io/github/last-commit/meowgl1/studio)
 ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
-![Markdown](https://img.shields.io/badge/Markdown-000000?logo=markdown&logoColor=white)
+![Claude](https://img.shields.io/badge/Claude-Code-D4A827?logo=anthropic&logoColor=white)
+![Gemini](https://img.shields.io/badge/Gemini-CLI-4285F4?logo=google&logoColor=white)
+
+<p align="center">
+  <img src=".github/assets/hero.png" width="100%" alt="Mowgli Studio">
+</p>
 
 ---
 
-## 🧠 What it is
+## What it is
 
-`.studio` is a structured folder of markdown files that gives any AI coding assistant — Claude Code, Gemini CLI, Cursor, or anything else — a consistent, layered understanding of how you work before it writes a single line of code.
+Mowgli Studio is two things that work together:
 
-It is not a plugin. It is not a framework. It is a set of files.
+**`.studio/`** — A structured folder of markdown files that gives any AI coding assistant a consistent, layered understanding of how you work before it writes a single line of code. Engineering standards, tech decisions, skills, agents, and session protocol — all in one place, inherited by every project.
+
+**`mowgli`** — A unified CLI that wraps Claude Code, Gemini CLI, and future providers behind a single interactive REPL. Switch models mid-session, chain providers in pipelines, manage MCP servers, and track session cost — all from one interface.
+
+Neither is a framework. Neither requires a running service. Both are files and scripts you own entirely.
 
 ---
 
-## ⚙️ How it works
+## What's new in v2.3
 
-Every AI session in a project begins with a cascade:
+- **Mowgli CLI** — full interactive REPL with multi-provider support, cross-model pipelines, and MCP management
+- **Graphify skill** — build and query codebase knowledge graphs (71x fewer tokens per query)
+- **Obsidian MCP** — read and write your vault directly from any AI session
+- **`mowgli mcp on/off`** — toggle MCP servers at runtime without touching config files
+- **Waiting spinner** — visual feedback while the model is thinking
+
+---
+
+## The `.studio` context system
+
+Every AI session begins with a cascade:
 
 ```
-project/CLAUDE.md (or GEMINI.md, .cursorrules, etc.)
+project/CLAUDE.md  (or GEMINI.md, .cursorrules)
   └── @.studio/STUDIO.md              ← project-level context
         └── @~/.studio/STUDIO.md      ← global standards
-              ├── harness.md           ← engineering rules
-              ├── stack.md             ← technology decisions
-              ├── persona.md           ← communication style
+              ├── harness.md           ← 5 engineering absolutes
+              ├── stack.md             ← technology decisions (final)
+              ├── persona.md           ← communication contract
               ├── IGNORE.md            ← files never to touch
-              ├── evals.md             ← agent success metrics
               ├── rules/               ← language and common rules
               ├── contexts/            ← mode-specific behavior
               ├── skills/              ← reusable procedures
               └── agents/              ← specialized subagents
 ```
 
-The AI tool reads the entry file, which expands all `@` references in sequence. By the time the model reads your first message, it already knows your engineering standards, tech stack, active rules, and how you prefer to communicate.
+The AI tool reads the entry file, expands all `@` references in sequence, and arrives at your first message already knowing your engineering standards, tech stack, active rules, and session protocol.
 
-The global `~/.studio/` applies to every project on your machine. Each project's `.studio/` inherits from the global and adds its own context — architecture, current sprint, known traps.
+The global `~/.studio/` applies to every project. Each project's `.studio/` inherits from the global and adds its own context — architecture, current sprint, known traps.
 
 ---
 
-## 🗂️ Structure
+## The `mowgli` CLI
 
-### Global (`~/.studio/`)
+```bash
+mowgli                          # open interactive REPL
+mowgli -m opus                  # start with a specific model
+mowgli -p "explain this code"   # headless, single prompt
 
-#### 📌 Standards
+mowgli models                   # list available models
+mowgli mcp                      # list MCP servers (on/off)
+mowgli mcp on obsidian          # enable a server
+mowgli mcp off notebooklm       # disable a server
+```
 
-| File | Purpose |
-|------|---------|
-| `STUDIO.md` | Entry point. References all global files. Defines session protocol, extension points, available agents and skills. |
-| `harness.md` | Five engineering absolutes: schema-first, evals-driven, context engineering, failure-aware, observability. |
-| `stack.md` | Technology decisions — final, not suggestions. Python, TypeScript, Next.js, Supabase. No LangChain. |
-| `persona.md` | Communication contract. Direct, code-first, no pleasantries, Italian or English per session. |
-| `IGNORE.md` | Files the AI must never modify: `.env*`, `.git/`, build artifacts, migrations. |
-| `evals.md` | How to know if agents are succeeding. Session logging rules. |
+Inside the REPL, slash commands control the session:
 
-#### 📏 Rules (`rules/`)
+```
+/model gemini-pro     switch model mid-session (new context)
+/models               list all models
+/mcp                  list MCP servers
+/mcp on <name>        enable a server
+/cost                 show session spend
+/compact              summarize and compress context
+/clear                start a new session
+/help                 all commands
+/exit                 quit
+```
 
-Enforceable coding standards loaded every session. Organized by scope:
+### Multi-model pipelines
 
-| Folder | Contents |
-|--------|---------|
-| `rules/common/` | `clean-code` · `clean-architecture` · `testing` · `performance` · `patterns` · `security` · `llm-security` · `git` · `hooks` |
-| `rules/python/` | `coding-style` · `patterns` · `testing` · `security` · `fastapi` |
-| `rules/js/` | `coding-style` · `patterns` · `testing` · `security` · `react` |
-| `rules/sql/` | `coding-style` · `patterns` · `security` |
+Chain providers to optimize cost and quality — use the expensive model only where it matters:
 
-#### 🎭 Contexts (`contexts/`)
+```bash
+# Plan with Opus, execute with Gemini (~70% cheaper on execution)
+mowgli pipe --plan opus --execute gemini-pro "build a REST API for user auth"
 
-Mode-specific behavior files. Load the one that matches your current activity:
+# Plan → Execute → Review
+mowgli pipe --plan opus --execute gemini-pro --review sonnet "refactor the payment service"
+```
 
-| File | When to use |
-|------|------------|
-| `contexts/dev.md` | Actively building or fixing code |
-| `contexts/research.md` | Investigating a codebase or problem |
-| `contexts/review.md` | Reviewing a PR or auditing code |
+### Models
 
-Each context file activates the relevant rules and defines the appropriate behavior for that mode.
+| Alias | Provider | Best for |
+|-------|----------|----------|
+| `opus` | Claude | Architecture, complex reasoning, security review |
+| `sonnet` | Claude | General coding, balanced cost/quality |
+| `haiku` | Claude | Fast edits, simple questions |
+| `gemini-pro` | Gemini | Execution, long context, lower cost |
+| `gemini-lite` | Gemini | Bulk tasks, draft generation |
 
-#### 🛠️ Skills (`skills/`)
+---
 
-Reusable procedures invoked by name during sessions:
+## Tool ecosystem
+
+Three tools that address different layers of the coding workflow:
+
+| Tool | Integration | Layer | When to use |
+|------|------------|-------|-------------|
+| **Graphify** | Skill (`/graphify`) | Code understanding | "How does auth work?", onboarding a new codebase, PR impact analysis |
+| **Obsidian** | MCP server | Human knowledge | Read specs, write decision logs, query meeting notes |
+| **Higgsfield** | Claude plugin | Media generation | Demo videos, product images, marketing clips |
+
+Workflow: **Obsidian** (read the spec) → **Graphify** (understand the code) → implement → **Higgsfield** (make the demo) → **Obsidian** (write the decision log).
+
+### Graphify
+
+Scans any codebase — code, docs, PDFs, images — and builds a persistent JSON knowledge graph with community detection. Subsequent queries use the graph instead of raw files (71x fewer tokens).
+
+```bash
+/graphify                           # build graph for current directory
+/graphify query "how does X work"   # query an existing graph
+/graphify path "AuthModule" "DB"    # shortest path between two concepts
+/graphify --obsidian                # export graph as Obsidian vault
+/graphify --update                  # incremental rebuild on changed files
+```
+
+### Obsidian MCP (MCPVault)
+
+Reads and writes markdown files directly from your vault without Obsidian open. Available in every Claude Code and Gemini session.
+
+```bash
+mowgli mcp on obsidian    # enable
+mowgli mcp off obsidian   # disable
+```
+
+---
+
+## Skills
+
+Reusable procedures invoked by name. Loaded on demand, not at startup.
 
 | Skill | Purpose |
 |-------|---------|
 | `spec-driven-development` | Spec-first workflow — mandatory before any new feature |
+| `graphify` | Build and query codebase knowledge graphs |
+| `readme-craft` | Create, audit, or improve README files |
 | `webapp-testing` | Playwright E2E testing setup and patterns |
 | `backend-patterns` | API design, service layer, repository, auth, caching |
 | `frontend-patterns` | Next.js App Router, Server Components, data fetching |
-| `docker-patterns` | Multi-stage builds, Compose for local dev, security hardening |
+| `docker-patterns` | Multi-stage builds, Compose, security hardening |
 | `api-design` | REST conventions, response format, pagination, versioning |
 | `coding-standards` | Linting setup, pre-commit hooks, CI enforcement |
 | `git-workflow` | Branching strategy, commit discipline, PR process |
 | `security-review` | OWASP checklist — run before merging auth/payment code |
 | `eval-harness` | Build evaluation harnesses for AI/LLM features |
-| `tracker` | Session cost and token logging |
+| `multi-agent-patterns` | When and how to spawn subagents |
 | `caveman` | Minimal, dependency-free scripting patterns |
-| `multi-agent-patterns` | When and how to spawn subagents — handoff templates, parallel rules, anti-patterns |
-| `readme-craft` | Create, edit, audit, or improve README files — structure, badges, visuals, tone, multi-language |
-
-#### 🤖 Agents (`agents/`)
-
-Specialized subagents invoked by name. Each has a defined role and output format:
-
-| Agent | Purpose |
-|-------|---------|
-| `architect` | System design, ADRs, trade-off analysis, scalability planning |
-| `planner` | Break requirements into phased implementation plans |
-| `tdd-guide` | Test-first enforcement — writes tests before implementation |
-| `performance-optimizer` | Find and fix N+1 queries, slow endpoints, bundle bloat |
-| `security-reviewer` | Security incident response and deep audits |
-| `refactor-cleaner` | Improve structure without changing behavior |
-| `code-explorer` | Map unfamiliar codebases — entry points, patterns, gotchas |
-| `code-simplifier` | Remove premature abstractions and unnecessary complexity |
-| `doc-updater` | Keep context.md, gotchas.md, and README in sync with code |
-
-#### 🪝 Hooks (`hooks/`, `scripts/`)
-
-Automation that runs around your AI sessions:
-
-| Hook | Trigger | What it does |
-|------|---------|-------------|
-| `session-start` | Session opens | Detects active project, loads prior state |
-| `pre-compact` | Before context compaction | Saves session state — nothing lost |
-| `session-end` | After each response | Persists edited files and session data |
-| `cost-tracker` | After each response | Tracks token usage and context window utilization |
-| `desktop-notify` | After each response | macOS notification when Claude finishes |
-| `read-tracker` | After Read | Records every file read — gateguard uses this to allow subsequent edits |
-| `quality-gate` | After Edit/Write | Runs ruff or tsc on the file just edited |
-| `gateguard` | Before Edit/Write | Blocks blind edits — forces Read first |
-
-All hooks are defined in `hooks/hooks.json` (studio source of truth) and applied to AI tools via the activation script — never by editing tool configs manually.
-
-#### 📊 Dashboard (`scripts/dashboard.py`)
-
-Terminal overview of your studio and active project:
-
-```
-╭──────────────── Studio Dashboard ────────────────╮
-│ jungle  /Projects/jungle  2026-06-03 21:00       │
-╰──────────────────────────────────────────────────╯
-  Tasks: 2 doing · 3 next
-  Changelog: last 3 sessions
-  Sessions: cost tracking per project
-  Skills: 13 loaded
-  Agents: 9 available
-  Hooks: ✓ active
-```
-
-### Project-level (`.studio/` in each repo)
-
-| File / Folder | Purpose | Required |
-|---------------|---------|---------|
-| `STUDIO.md` | Opens with `@~/.studio/STUDIO.md`. Adds project overrides. | ✅ Yes |
-| `context.md` | Architecture, constraints, active feature status. Not documentation — what the AI needs to act correctly. | ✅ Yes |
-| `tasks.md` | Current sprint: Doing / Next / Blocked. Updated every session. | ✅ Yes |
-| `changelog/` | One file per session (`YYYY-MM-DD.md`). What was done, files changed, token cost. 3 most recent loaded at start. | ✅ Yes |
-| `gotchas.md` | Known traps in this codebase. Read before executing. | 🔶 As needed |
-| `memory/` | Facts that persist across sessions. | 🔶 As needed |
-| `agents/` | Project-specific agent overrides. | 🔶 As needed |
-| `skills/` | Project-specific skill overrides. | 🔶 As needed |
-| `mcp.md` | MCP servers active for this project. | 🔶 As needed |
+| `tracker` | Session cost and token logging |
 
 ---
 
-## 🌐 Why AI-agnostic
+## Agents
 
-Claude Code reads `CLAUDE.md`. Gemini CLI reads `GEMINI.md`. Cursor reads `.cursorrules`. Each tool has its own entry file.
+Specialized subagents invoked by name:
 
-`.studio/` sits underneath all of them. The entry files are thin wrappers:
+| Agent | Purpose |
+|-------|---------|
+| `architect` | System design, ADRs, trade-off analysis |
+| `planner` | Break requirements into phased implementation plans |
+| `tdd-guide` | Test-first enforcement |
+| `performance-optimizer` | N+1 queries, slow endpoints, bundle bloat |
+| `security-reviewer` | Security audits and incident response |
+| `refactor-cleaner` | Improve structure without changing behavior |
+| `code-explorer` | Map unfamiliar codebases |
+| `code-simplifier` | Remove premature abstractions |
+| `doc-updater` | Keep context.md, gotchas.md, and README in sync |
+
+---
+
+## Hooks
+
+Automation managed via `hooks/hooks.json`, applied with `activate.py`:
+
+| Hook | Trigger | What it does |
+|------|---------|-------------|
+| `quality-gate` | After Edit/Write | Runs ruff or tsc on edited file |
+| `gateguard` | Before Edit/Write | Blocks blind edits — forces Read first |
+| `cost-tracker` | After each response | Tracks token usage |
+| `desktop-notify` | After each response | macOS notification on completion |
+| `read-tracker` | After Read | Records files read for gateguard |
+
+---
+
+## Project structure
+
+### Global (`~/.studio/`)
+
+| File / Folder | Purpose |
+|--------------|---------|
+| `STUDIO.md` | Entry point — references all global files, defines session protocol |
+| `harness.md` | Five engineering absolutes |
+| `stack.md` | Technology decisions — final, not suggestions |
+| `persona.md` | Communication contract |
+| `IGNORE.md` | Files the AI must never modify |
+| `rules/` | Enforceable coding standards by language and scope |
+| `contexts/` | Mode-specific behavior: `dev`, `research`, `review` |
+| `skills/` | Global skills |
+| `agents/` | Global agents |
+| `hooks/` | Hook definitions |
+| `mcp/` | MCP server config (`global.json` is source of truth) |
+| `src/mowgli/` | The Mowgli CLI package |
+
+### Per-project (`.studio/` in each repo)
+
+| File / Folder | Purpose | Required |
+|--------------|---------|---------|
+| `STUDIO.md` | Inherits global, adds project overrides | ✅ |
+| `context.md` | Architecture, constraints, active feature status | ✅ |
+| `tasks.md` | Current sprint: Doing / Next / Blocked | ✅ |
+| `changelog/` | One file per session (`YYYY-MM-DD.md`) | ✅ |
+| `gotchas.md` | Known traps in this codebase | 🔶 |
+| `mcp.md` | MCP servers active for this project | 🔶 |
+| `memory/` | Facts that persist across sessions | 🔶 |
+
+---
+
+## Why AI-agnostic
+
+Claude Code reads `CLAUDE.md`. Gemini CLI reads `GEMINI.md`. Cursor reads `.cursorrules`.
+
+`.studio/` sits underneath all of them:
 
 ```markdown
 # CLAUDE.md
 @.studio/STUDIO.md
 ```
 
-When you switch AI tools, you update one line. Your engineering standards, tech decisions, and project context stay exactly as they are.
-
-The hooks and dashboard are currently adapted for Claude Code. The architecture is designed for additional adapters — see `scripts/activate.py --tool=`.
+When you switch AI tools, you update one line. Standards, decisions, and project context stay exactly as they are.
 
 ---
 
-## 💰 Token cost
+## The vision
 
-Loading the full global context at session start costs approximately **8,000–10,000 tokens** — around 4–5% of a 200K context window.
+The real problem isn't picking the right AI tool. It's that every tool treats you as a new user every session. You re-explain the stack, re-state the constraints, re-describe the architecture. The AI produces technically correct code that violates decisions you made three sessions ago — not because the model is bad, but because you never gave it the memory to act consistently.
 
-The design keeps this low by:
-- Using imperatives, not prose — rules load fast, explanations don't
-- Loading skills on-demand, not at startup
-- Limiting changelog to 3 most recent files
-- Keeping `context.md` focused on operational state, not documentation
+Mowgli Studio addresses this at three layers:
 
----
+- **Context** (`.studio/`) — the AI knows your standards and current state before you say a word
+- **Interface** (`mowgli`) — one entry point regardless of which provider you use today
+- **Tools** (skills + MCP) — code knowledge, personal knowledge, and creative output available in every session
 
-## 🔄 The session protocol
-
-Every session follows three phases:
-
-**▶ START** — Load `tasks.md` + 3 most recent `changelog/` files. Load context mode (dev / research / review). Know scope before touching anything.
-
-**⚡ DURING** — Spec-first: no new feature without an approved spec. IGNORE.md: no exceptions. Stack: follow decisions, don't explore alternatives. Rules: enforced by context mode.
-
-**⏹ END** — Summary, files changed, token cost. Changelog entry written. Tasks updated.
+This turns a collection of AI tools into a coherent system you control. Not a product you adapt to — a system you own.
 
 ---
 
-## 🏗️ Harness Engineering
+## Token cost
 
-The five rules in `harness.md` encode what separates production AI systems from demos:
+Global context at session start: approximately **8,000–10,000 tokens** (~4–5% of a 200K window).
 
-1. **🔷 Schema-first** — LLM output validated with Pydantic or Zod before any operation.
-2. **🔷 Evals-driven** — No prompt ships without running against a golden dataset.
-3. **🔷 Context engineering** — Raw unprocessed content never reaches the LLM. Filter first.
-4. **🔷 Failure-aware design** — Exception chaining, retry with backoff, partial result recovery.
-5. **🔷 Observability** — Every LLM call logged: model, tokens, latency, cost.
+Kept low by: imperative rules over prose, on-demand skill loading, 3-file changelog limit, operational `context.md` instead of documentation.
 
 ---
 
-## 🚀 Setup
+## Setup
 
-### 1. Install global studio
+### 1. Clone and install
 
 ```bash
 git clone https://github.com/meowgl1/studio ~/.studio
-pip install rich   # for the dashboard
+pip install rich
+
+# Install the mowgli CLI
+pip install -e ~/.studio
 ```
 
-### 2. Configure for your stack
+### 2. Configure
 
 ```bash
-# Edit tech decisions
-nano ~/.studio/stack.md
-
-# Edit communication preferences  
-nano ~/.studio/persona.md
+nano ~/.studio/stack.md    # set your technology decisions
+nano ~/.studio/persona.md  # set communication preferences
 ```
 
-### 3. Activate hooks (Claude Code)
+### 3. Activate hooks and MCP
 
 ```bash
 python3 ~/.studio/scripts/activate.py
 
 # Check status
 python3 ~/.studio/scripts/activate.py --status
-
-# Remove hooks
-python3 ~/.studio/scripts/activate.py --off
 ```
 
 ### 4. Wire up a project
@@ -257,57 +307,49 @@ python3 ~/.studio/scripts/activate.py --off
 ```bash
 mkdir your-project/.studio
 
-# Entry file — one line
 echo "@~/.studio/STUDIO.md" > your-project/.studio/STUDIO.md
+echo "@.studio/STUDIO.md"   > your-project/CLAUDE.md
 
-# Project entry for Claude Code — one line  
-echo "@.studio/STUDIO.md" > your-project/CLAUDE.md
-
-# Create required files
 touch your-project/.studio/context.md
 touch your-project/.studio/tasks.md
-mkdir your-project/.studio/changelog
+mkdir  your-project/.studio/changelog
 ```
 
-Fill `context.md` with your project's architecture, stack overrides, and constraints.  
-Fill `tasks.md` with current sprint items.
+Fill `context.md` with architecture, stack overrides, and constraints.
 
-### 5. Run the dashboard
+### 5. Run
 
 ```bash
-# From your project directory
+# Dashboard
 python3 ~/.studio/scripts/dashboard.py
 
-# Or from anywhere
-python3 ~/.studio/scripts/dashboard.py /path/to/project
+# Interactive AI session
+mowgli
+
+# With a specific model
+mowgli -m gemini-pro
 ```
 
 ---
 
-## 🙏 Acknowledgment
+## Harness Engineering
 
-The v2.0 expansion of this system was informed by **[ECC](https://github.com/affaan-m/ECC)** by [@affaan-m](https://github.com/affaan-m), winner of the Claude hackathon. ECC demonstrated what a fully operational AI context system looks like at scale — 97 agents, 300+ skills, 20+ hooks, and cross-tool support across 7 AI platforms.
+The five rules in `harness.md` that separate production AI systems from demos:
 
-This project took a different direction: instead of a large, CLI-heavy system, `.studio` adapts ECC's most valuable patterns into a lean, Python-native, AI-agnostic layer. The rules architecture, context modes, hook infrastructure, and agent design were all shaped by studying ECC's approach.
-
----
-
-## 💬 Personal opinion
-
-I built this because I kept losing context.
-
-Every new Claude Code session started from zero. I re-explained the stack, re-stated the constraints, re-described the architecture. The AI produced technically correct code that violated decisions I had made three sessions earlier — not because the model was bad, but because I never gave it the memory it needed to act consistently.
-
-The standard advice is "just write a good CLAUDE.md." I tried that. The problem is that a good CLAUDE.md for one project becomes a different document from a good CLAUDE.md for another project, and neither survives tool changes. Every update was a tax.
-
-`.studio` solves this by separating what is stable (engineering standards, technology decisions, communication preferences) from what changes (current tasks, recent sessions, project state). The stable parts live globally and never need to be rewritten.
-
-The other thing I got wrong before: I thought the AI needed documentation. It doesn't. It needs rules. Long explanations about why we use Pydantic are wasted tokens. "ALWAYS validate LLM output with Pydantic before any DB operation" is not. The shift from documentation to imperatives cut my session start context by roughly 40% while making the AI's behavior more consistent, not less.
-
-This is a living system. I add a gotcha when I hit a recurring bug. I add a memory file when agents start losing important state. I add a skill when I find myself repeating the same instruction across sessions. The overhead of maintaining it is lower than the overhead of not having it.
+1. **Schema-first** — LLM output validated with Pydantic or Zod before any operation
+2. **Evals-driven** — no prompt ships without a golden dataset
+3. **Context engineering** — raw unprocessed content never reaches the LLM
+4. **Failure-aware design** — exception chaining, retry with backoff, partial result recovery
+5. **Observability** — every LLM call logged: model, tokens, latency, cost
 
 ---
 
-## 📜 License
+## Acknowledgment
 
-MIT. Use it, adapt it, break it into pieces and take what's useful.
+The context system was informed by **[ECC](https://github.com/affaan-m/ECC)** by [@affaan-m](https://github.com/affaan-m), which demonstrated what a fully operational AI context system looks like at scale. This project took a leaner, more personal direction, but ECC's architecture shaped the rules system, context modes, and agent design.
+
+---
+
+## License
+
+MIT
