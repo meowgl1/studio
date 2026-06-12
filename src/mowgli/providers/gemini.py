@@ -18,6 +18,7 @@ class GeminiProvider:
         session_id: str,
         resume: bool = False,
         include_partial: bool = True,
+        system_prompt: str | None = None,  # accepted for Protocol compliance; not forwarded (gemini CLI doesn't expose --append-system-prompt yet)
     ) -> list[str]:
         args = [
             GEMINI_BINARY,
